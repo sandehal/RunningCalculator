@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -33,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -64,7 +66,7 @@ fun FindSpeedScreen(viewModel: DistanceConversionViewModel, navController: NavCo
         
         Spacer(modifier = Modifier.height(15.dp))
 
-        OutputField(output = output)
+        OutputField(output, viewModel)
 
 
         Text(text = output.value)
@@ -82,8 +84,11 @@ fun TimeEntryFields(viewModel: DistanceConversionViewModel, output: MutableState
         //Timer
 
         Column(Modifier.weight(1f)) {
-            Text(modifier = Modifier.padding(4.dp), text = " Timer", fontSize = 12.sp)
+            Text(modifier = Modifier
+                .padding(4.dp)
+                .clip(RoundedCornerShape(20.dp)), text = " Timer", fontSize = 12.sp)
             TextField(modifier = Modifier
+                .clip(RoundedCornerShape(20.dp))
                 .padding(8.dp),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 placeholder = {Text("00")},
@@ -103,6 +108,7 @@ fun TimeEntryFields(viewModel: DistanceConversionViewModel, output: MutableState
         Column(Modifier.weight(1f)) {
             Text(modifier = Modifier.padding(4.dp), text = " Minutter", fontSize = 12.sp)
             TextField(modifier = Modifier
+                .clip(RoundedCornerShape(20.dp))
                 .padding(8.dp),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 placeholder = {Text("00")},
@@ -246,7 +252,7 @@ fun DistanceEntryFields(viewModel: DistanceConversionViewModel, output: MutableS
 }
 
 @Composable
-fun OutputField(output: MutableState<String>) {
+fun OutputField(output: MutableState<String>, viewModel: DistanceConversionViewModel) {
     
     Column(
         Modifier
@@ -257,6 +263,75 @@ fun OutputField(output: MutableState<String>) {
         Row {
             TextField(
                 value = output.value, onValueChange = {output.value = it}, readOnly = true
+            )
+            SelectOutputUnit(output, viewModel)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SelectOutputUnit(output: MutableState<String>, viewModel: DistanceConversionViewModel) {
+    val unitSpeedList = listOf(
+        "Km/h",
+        "M/h",
+        "Min/km",
+        "Min/mile"
+    )
+
+
+    var unit by remember {
+        mutableStateOf("")
+    }
+
+    var isExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    ExposedDropdownMenuBox(
+        expanded = isExpanded,
+        onExpandedChange = { newValue ->
+            isExpanded = newValue
+        }
+    ) { TextField(
+        value = unit,
+        onValueChange = {
+        },
+        maxLines = 1,
+        readOnly = true,
+        trailingIcon = {
+            ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+        },
+        colors = ExposedDropdownMenuDefaults.textFieldColors(),
+        textStyle = TextStyle(
+            textAlign = TextAlign.Start
+        ),
+        modifier = Modifier
+            .menuAnchor()
+            .padding(8.dp)
+    )}
+
+    DropdownMenu(
+        expanded = isExpanded,
+        onDismissRequest = {
+            isExpanded = false
+        }
+    ) {
+        unitSpeedList.forEach { el ->
+            DropdownMenuItem(
+                text = {
+                    Text(text = el)
+                },
+                onClick = {
+                    unit = el
+                    when(el) {
+                        "Km/h" -> output.value = viewModel.ToSpeedConversionUiState.value.resultUnit.settKmPh().toString()
+                        "M/h" -> output.value = viewModel.ToSpeedConversionUiState.value.resultUnit.settMilesPerHour().toString()
+                        "Min/km" -> output.value = viewModel.ToSpeedConversionUiState.value.resultUnit.settMinPerKm().toString()
+                        "Min/mile" -> output.value = viewModel.ToSpeedConversionUiState.value.resultUnit.settMinPerMile().toString()
+                    }
+                    isExpanded = false
+                }
             )
         }
     }
