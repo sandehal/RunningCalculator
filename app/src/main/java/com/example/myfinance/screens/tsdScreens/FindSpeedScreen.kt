@@ -2,19 +2,12 @@ package com.example.myfinance.screens.tsdScreens
 
 import Kilometer
 import Miles
-import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -36,24 +29,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myfinance.data.Meter
-import com.example.myfinance.mitm.DistanceConversionViewModel
+import com.example.myfinance.mitm.FindSpeedConversionViewModel
 import com.example.myfinance.navigation.BottomNavBar
 import com.example.myfinance.navigation.TsdNavbar
 
 @Composable
-fun FindSpeedScreen(viewModel: DistanceConversionViewModel, navController: NavController, tsdNavController: NavController) {
+fun FindSpeedScreen(viewModel: FindSpeedConversionViewModel, navController: NavController, tsdNavController: NavController) {
 
     val output = remember {
-        mutableStateOf("")
+        mutableStateOf("Fill in values")
     }
 
 
@@ -67,15 +58,12 @@ fun FindSpeedScreen(viewModel: DistanceConversionViewModel, navController: NavCo
         Spacer(modifier = Modifier.height(15.dp))
 
         OutputField(output, viewModel)
-
-
-        Text(text = output.value)
     }
     BottomNavBar(navController = navController)
 }
 
 @Composable
-fun TimeEntryFields(viewModel: DistanceConversionViewModel, output: MutableState<String>) {
+fun TimeEntryFields(viewModel: FindSpeedConversionViewModel, output: MutableState<String>) {
     var timer: MutableState<String> = remember { mutableStateOf("") }
     var minutter: MutableState<String> = remember { mutableStateOf("") }
     var sekunder: MutableState<String> = remember { mutableStateOf("") }
@@ -100,7 +88,7 @@ fun TimeEntryFields(viewModel: DistanceConversionViewModel, output: MutableState
                         viewModel.ToSpeedConversionUiState.value.timer = timer.value.toInt()
                     }
                     viewModel.CalculateSpeed()
-                    output.value = viewModel.ToSpeedConversionUiState.value.resultUnit.toString()
+                    output.value = viewModel.ToSpeedConversionUiState.value.displayResult.toString()
                 })
         }
 
@@ -124,7 +112,7 @@ fun TimeEntryFields(viewModel: DistanceConversionViewModel, output: MutableState
                         minutter.value = "59"
                     }
                     viewModel.CalculateSpeed()
-                    output.value = viewModel.ToSpeedConversionUiState.value.resultUnit.toString()
+                    output.value = viewModel.ToSpeedConversionUiState.value.displayResult.toString()
                 }
             )
         }
@@ -148,7 +136,7 @@ fun TimeEntryFields(viewModel: DistanceConversionViewModel, output: MutableState
                         sekunder.value = "59"
                     }
                     viewModel.CalculateSpeed()
-                    output.value = viewModel.ToSpeedConversionUiState.value.resultUnit.toString()
+                    output.value = viewModel.ToSpeedConversionUiState.value.displayResult.toString()
                 }
             )
         }
@@ -158,7 +146,7 @@ fun TimeEntryFields(viewModel: DistanceConversionViewModel, output: MutableState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DistanceEntryFields(viewModel: DistanceConversionViewModel, output: MutableState<String>) {
+fun DistanceEntryFields(viewModel: FindSpeedConversionViewModel, output: MutableState<String>) {
     var distanse: MutableState<String> = remember { mutableStateOf("") }
     Column {
         Text(text = "Distanse",modifier = Modifier.padding(4.dp), fontSize = 12.sp)
@@ -179,12 +167,12 @@ fun DistanceEntryFields(viewModel: DistanceConversionViewModel, output: MutableS
                         viewModel.ToSpeedConversionUiState.value.distanse = distanse.value.toFloat()
                     }
                     viewModel.CalculateSpeed()
-                    output.value = viewModel.ToSpeedConversionUiState.value.resultUnit.toString()
+                    output.value = viewModel.ToSpeedConversionUiState.value.displayResult.toString()
                 }
             )
 
             var unit by remember {
-                mutableStateOf("")
+                mutableStateOf("Km")
             }
 
             val unitDistanceMap = hashMapOf<String?, String?>(
@@ -196,7 +184,7 @@ fun DistanceEntryFields(viewModel: DistanceConversionViewModel, output: MutableS
             var isExpanded by remember {
                 mutableStateOf(false)
             }
-            Column(Modifier.weight(2f)) {
+            Column {
                 ExposedDropdownMenuBox(
                     expanded = isExpanded,
                     onExpandedChange = { newValue ->
@@ -240,7 +228,7 @@ fun DistanceEntryFields(viewModel: DistanceConversionViewModel, output: MutableS
                                     "Meter" -> viewModel.ToSpeedConversionUiState.value.distanseEnhet = Meter(d)
                                 }
                                 viewModel.CalculateSpeed()
-                                output.value = viewModel.ToSpeedConversionUiState.value.resultUnit.toString()
+                                output.value = viewModel.ToSpeedConversionUiState.value.displayResult.toString()
                                 isExpanded = false
                             }
                         )
@@ -252,16 +240,14 @@ fun DistanceEntryFields(viewModel: DistanceConversionViewModel, output: MutableS
 }
 
 @Composable
-fun OutputField(output: MutableState<String>, viewModel: DistanceConversionViewModel) {
+fun OutputField(output: MutableState<String>, viewModel: FindSpeedConversionViewModel) {
     
-    Column(
-        Modifier
-            .fillMaxSize()
-            .wrapContentWidth(Alignment.CenterHorizontally)) {
-        Text(text = "Fart")
+    Column {
+        Text(modifier = Modifier.padding(horizontal = 8.dp), text = "FART", style = TextStyle(fontFamily = FontFamily.Monospace))
 
-        Row {
+        Row() {
             TextField(
+                modifier = Modifier.padding(horizontal = 8.dp),
                 value = output.value, onValueChange = {output.value = it}, readOnly = true
             )
             SelectOutputUnit(output, viewModel)
@@ -271,68 +257,75 @@ fun OutputField(output: MutableState<String>, viewModel: DistanceConversionViewM
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectOutputUnit(output: MutableState<String>, viewModel: DistanceConversionViewModel) {
+fun SelectOutputUnit(output: MutableState<String>, viewModel: FindSpeedConversionViewModel) {
     val unitSpeedList = listOf(
         "Km/h",
-        "M/h",
+        "Mi/h",
         "Min/km",
         "Min/mile"
     )
+    val unitSpeedMap = hashMapOf<String?, String?>()
+    unitSpeedMap["Km/h"] = "kh"
+    unitSpeedMap["Mi/h"] = "mh"
+    unitSpeedMap["Min/km"] = "mk"
+    unitSpeedMap["Min/mile"] = "mm"
+
 
 
     var unit by remember {
-        mutableStateOf("")
+        mutableStateOf("Km/h")
     }
 
     var isExpanded by remember {
         mutableStateOf(false)
     }
 
-    ExposedDropdownMenuBox(
-        expanded = isExpanded,
-        onExpandedChange = { newValue ->
-            isExpanded = newValue
-        }
-    ) { TextField(
-        value = unit,
-        onValueChange = {
-        },
-        maxLines = 1,
-        readOnly = true,
-        trailingIcon = {
-            ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
-        },
-        colors = ExposedDropdownMenuDefaults.textFieldColors(),
-        textStyle = TextStyle(
-            textAlign = TextAlign.Start
-        ),
-        modifier = Modifier
-            .menuAnchor()
-            .padding(8.dp)
-    )}
+    Column {
+        ExposedDropdownMenuBox(
+            expanded = isExpanded,
+            onExpandedChange = { newValue ->
+                isExpanded = newValue
+            }
+        ) { TextField(
+            value = unit,
+            onValueChange = {
+            },
+            maxLines = 1,
+            readOnly = true,
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            textStyle = TextStyle(
+                textAlign = TextAlign.Start
+            ),
+            modifier = Modifier
+                .menuAnchor()
+                .padding(horizontal = 8.dp)
+        )}
 
-    DropdownMenu(
-        expanded = isExpanded,
-        onDismissRequest = {
-            isExpanded = false
-        }
-    ) {
-        unitSpeedList.forEach { el ->
-            DropdownMenuItem(
-                text = {
-                    Text(text = el)
-                },
-                onClick = {
-                    unit = el
-                    when(el) {
-                        "Km/h" -> output.value = viewModel.ToSpeedConversionUiState.value.resultUnit.settKmPh().toString()
-                        "M/h" -> output.value = viewModel.ToSpeedConversionUiState.value.resultUnit.settMilesPerHour().toString()
-                        "Min/km" -> output.value = viewModel.ToSpeedConversionUiState.value.resultUnit.settMinPerKm().toString()
-                        "Min/mile" -> output.value = viewModel.ToSpeedConversionUiState.value.resultUnit.settMinPerMile().toString()
+        DropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = {
+                isExpanded = false
+            },
+            Modifier.wrapContentWidth(Alignment.End)
+        ) {
+            unitSpeedMap.forEach { el ->
+                DropdownMenuItem(
+                    text = {
+                        Text(text = el.key.toString())
+                    },
+                    onClick = {
+                        unit = el.value.toString()
+                        viewModel.ToSpeedConversionUiState.value.displayUnit = el.key.toString()
+                        viewModel.CalculateSpeed()
+                        output.value = viewModel.ToSpeedConversionUiState.value.displayResult.toString()
+                        isExpanded = false
                     }
-                    isExpanded = false
-                }
-            )
+                )
+            }
         }
     }
+
 }

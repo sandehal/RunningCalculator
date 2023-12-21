@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class DistanceConversionViewModel(
+class FindSpeedConversionViewModel(
     private val _ToSpeedConversionUiState: MutableStateFlow<ToSpeedConversionUiState> = MutableStateFlow(
         ToSpeedConversionUiState(
             timer = 0,
@@ -15,7 +15,9 @@ class DistanceConversionViewModel(
             sekunder = 0,
             distanse = 0f,
             distanseEnhet = Kilometer(0f),
-            resultUnit = Kmph(0f)
+            resultUnit = Kmph(0f),
+            displayUnit = "Km/h",
+            displayResult = Kmph(0f)
         )
     )
 ): ViewModel() {
@@ -27,5 +29,16 @@ class DistanceConversionViewModel(
             ToSpeedConversionUiState.value.sekunder)
         _ToSpeedConversionUiState.value.distanseEnhet.settDistanse(ToSpeedConversionUiState.value.distanse)
         _ToSpeedConversionUiState.value.resultUnit  = timeObj.kalkulerFart(ToSpeedConversionUiState.value.distanseEnhet)
+        SetDisplayUnit(ToSpeedConversionUiState.value.displayUnit)
+    }
+
+    fun SetDisplayUnit(unit: String) {
+        when (unit) {
+            "Km/h" -> _ToSpeedConversionUiState.value.displayResult = ToSpeedConversionUiState.value.resultUnit.settKmPh()
+            "Mi/h" -> _ToSpeedConversionUiState.value.displayResult = ToSpeedConversionUiState.value.resultUnit.settKmPh().settMilesPerHour()
+            "Min/km" -> _ToSpeedConversionUiState.value.displayResult = ToSpeedConversionUiState.value.resultUnit.settKmPh().settMinPerKm()
+            "Min/mile" -> _ToSpeedConversionUiState.value.displayResult = ToSpeedConversionUiState.value.resultUnit.settKmPh().settMinPerMile()
+        }
     }
 }
+
