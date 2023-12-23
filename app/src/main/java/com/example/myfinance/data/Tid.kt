@@ -16,6 +16,12 @@ class Tid internal constructor(var timer: Int, var minutter: Int, var sekunder: 
         return Kmph(fart)
     }
 
+    fun kalkulerDistanse(speed: EnhetFart): Kilometer {
+        val min = this.hentAntMinutter()
+        val distance = (speed.settKmPh()!!.kmph) * min
+        return Kilometer(distance)
+    }
+
     override fun toString(): String {
         if (timer == 0) {
             if (minutter == 0) {return "$sekunder s"}

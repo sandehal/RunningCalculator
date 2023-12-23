@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -61,6 +62,15 @@ fun IntSpeedScreen(navController: NavController,viewModel: RunConverterViewModel
 
             Column(Modifier.padding(10.dp)) {
                 UnitValueInputBox(viewModel, output, reprString)
+                Button(onClick = {
+                    TODO("Not correctly functioning")
+                    viewModel.reverseUnits()
+                    viewModel.createUnit(viewModel.runConverterUiState.value.fraEnhet)
+                    viewModel.convertUnit()
+                    output.value = viewModel.runConverterUiState.value.tilUnit.toString()
+                }) {
+
+                }
             }
         }
         UnitValueOutputBox(output = output)
@@ -76,7 +86,9 @@ fun FromSpeedUnitDropdownMenu(from1to2: Int, viewModel: RunConverterViewModel) {
         "km/h",
         "m/h",
         "min/km",
-        "min/mile"
+        "min/mile",
+        "knots",
+        "m/s"
     )
     var isExpanded by remember {
         mutableStateOf(false)
@@ -129,6 +141,8 @@ fun FromSpeedUnitDropdownMenu(from1to2: Int, viewModel: RunConverterViewModel) {
                             1 -> setUpFromUnit(unit, viewModel)
                             2 -> setUpToUnit(unit, viewModel)
                         }
+                        viewModel.createUnit(unit)
+                        viewModel.convertUnit()
                         isExpanded = false
                     }
                 )
@@ -140,17 +154,11 @@ fun FromSpeedUnitDropdownMenu(from1to2: Int, viewModel: RunConverterViewModel) {
 
 //Help function for adding FROM-UNIT
 fun setUpFromUnit(unit: String, viewModel: RunConverterViewModel) {
-    when(unit) {
-        "km/h" -> viewModel.runConverterUiState.value.fraEnhet = unit
-        "m/h" -> viewModel.runConverterUiState.value.fraEnhet = unit
-        "min/km" -> viewModel.runConverterUiState.value.fraEnhet = unit
-        "min/mile" -> viewModel.runConverterUiState.value.fraEnhet = unit
-    }
+    viewModel.runConverterUiState.value.fraEnhet = unit
 }
 
 fun setUpToUnit(unit: String, viewModel: RunConverterViewModel) {
     viewModel.runConverterUiState.value.tilEnhet = unit
-    Log.d("Fart", viewModel.runConverterUiState.value.tilVerdi)
 }
 
 @Composable
@@ -169,6 +177,8 @@ fun UnitValueInputBox(viewModel: RunConverterViewModel, output: MutableState<Str
             when(viewModel.runConverterUiState.value.fraEnhet) {
                 "km/h" ->  viewModel.runConverterUiState.value.fraVerdi = input.toFloatOrNull()
                 "m/h" ->  viewModel.runConverterUiState.value.fraVerdi = input.toFloatOrNull()
+                "knots" -> viewModel.runConverterUiState.value.fraVerdi = input.toFloatOrNull()
+                "m/s" -> viewModel.runConverterUiState.value.fraVerdi = input.toFloatOrNull()
                 "min/km" -> {
                     val minsekList = input.split(".")
                     if (minsekList.size == 2 && !minsekList.lastIndex.equals(""))  {

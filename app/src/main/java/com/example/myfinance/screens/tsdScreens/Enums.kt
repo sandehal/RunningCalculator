@@ -1,5 +1,7 @@
 package com.example.myfinance.screens.tsdScreens
 
+//FILE IS UNACTIVE
+//CONSIDER DELETION
 enum class SpeedUnitsEnum {
     Kmph,
     MilesPerHour,
