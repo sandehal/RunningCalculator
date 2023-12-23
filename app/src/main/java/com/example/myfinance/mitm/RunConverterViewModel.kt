@@ -5,6 +5,7 @@ import MilesPerHour
 import MinPerKm
 import MinPerMile
 import androidx.lifecycle.ViewModel
+import com.example.myfinance.data.Knots
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -60,7 +61,14 @@ class RunConverterViewModel (
                         )
                     } }
             }
+            "knots" -> {
+                _runConverterUiState.value.fraUnit = runConverterUiState.value.fraVerdi?.let {
+                    Knots(it)
+                }
+            }
         }
+
+
     }
     fun convertUnit() {
         println("For: " + runConverterUiState.value.fraUnit)
@@ -69,8 +77,16 @@ class RunConverterViewModel (
             "m/h" -> _runConverterUiState.value.tilUnit = runConverterUiState.value.fraUnit?.settKmPh()?.settMilesPerHour()
             "min/km" -> _runConverterUiState.value.tilUnit = runConverterUiState.value.fraUnit?.settKmPh()?.settMinPerKm()
             "min/mile" -> _runConverterUiState.value.tilUnit = runConverterUiState.value.fraUnit?.settKmPh()?.settMinPerMile()
+            "knots" -> _runConverterUiState.value.tilUnit = runConverterUiState.value.fraUnit?.settKmPh()?.settKnots()
+            "m/s" -> _runConverterUiState.value.tilUnit = runConverterUiState.value.fraUnit?.settKmPh()?.settMeterPerSec()
         }
         println("Etter: " + runConverterUiState.value.tilUnit)
 
+    }
+
+    fun reverseUnits() {
+        val gammelFraEnhet = runConverterUiState.value.fraEnhet
+        _runConverterUiState.value.fraEnhet = runConverterUiState.value.tilEnhet
+        _runConverterUiState.value.tilEnhet = gammelFraEnhet
     }
 }

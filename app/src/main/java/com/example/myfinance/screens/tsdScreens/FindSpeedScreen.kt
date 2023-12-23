@@ -273,7 +273,7 @@ fun SelectOutputUnit(output: MutableState<String>, viewModel: FindSpeedConversio
 
 
     var unit by remember {
-        mutableStateOf("Km/h")
+        mutableStateOf("kh")
     }
 
     var isExpanded by remember {

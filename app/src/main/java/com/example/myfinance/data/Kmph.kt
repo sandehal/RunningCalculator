@@ -1,3 +1,6 @@
+import com.example.myfinance.data.Knots
+import com.example.myfinance.data.MeterPerSec
+
 class Kmph(var kmph: Float) : EnhetFart() {
     fun settMinPerMile(): MinPerMile {
         val x = kmph
@@ -25,12 +28,24 @@ class Kmph(var kmph: Float) : EnhetFart() {
         return MilesPerHour(milesPerHour)
     }
 
+    fun settKnots(): Knots {
+        val x = kmph
+        val faktor = 0.539957f
+        val knots = x*faktor
+        return Knots(knots)
+    }
+
+    fun settMeterPerSec(): MeterPerSec {
+        val mps = kmph / 3.6f
+        return MeterPerSec(mps)
+    }
+
     override fun settKmPh(): Kmph {
         return this
     }
 
     override fun toString(): String {
-        return String.format("%.1f", kmph)
+        return String.format("%.1f", kmph).plus("km/h")
     }
 
     override fun repr(): String {

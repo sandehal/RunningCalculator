@@ -8,7 +8,7 @@ class MilesPerHour internal constructor(var milesPerHour: Float) : EnhetFart() {
     }
 
     override fun toString(): String {
-        return milesPerHour.toString() + "miles per hour"
+        return milesPerHour.toString() + "mi/h"
     }
 
     override fun repr(): String {
